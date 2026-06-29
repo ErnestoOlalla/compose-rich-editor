@@ -1,4 +1,4 @@
 jdk:
   - openjdk17
 install:
-  - ./gradlew :richeditor-compose:publishToMavenLocal -x test -x dokkaHtml --no-daemon --stacktrace
+  - ./gradlew :richeditor-compose:publishKotlinMultiplatformPublicationToMavenLocal :richeditor-compose:publishAndroidReleasePublicationToMavenLocal -x test --no-daemon --stacktrace
