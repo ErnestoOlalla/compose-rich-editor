@@ -1,0 +1,4 @@
+jdk:
+  - openjdk17
+install:
+  - ./gradlew :richeditor-compose:publishToMavenLocal -x test -x dokkaHtml --no-daemon --stacktrace

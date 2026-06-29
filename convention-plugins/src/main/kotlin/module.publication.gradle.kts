@@ -4,7 +4,10 @@ plugins {
 
 mavenPublishing {
     publishToMavenCentral()
-    signAllPublications()
+    // Only sign for real Maven Central releases; JitPack/local builds have no GPG key.
+    if (project.hasProperty("signingInMemoryKey") || project.hasProperty("signing.keyId")) {
+        signAllPublications()
+    }
 
     coordinates(group.toString(), project.name, version.toString())
 
