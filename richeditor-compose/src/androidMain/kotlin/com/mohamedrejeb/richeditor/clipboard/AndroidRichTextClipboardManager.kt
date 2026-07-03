@@ -1,6 +1,7 @@
 package com.mohamedrejeb.richeditor.clipboard
 
 import android.content.ClipData
+import androidx.compose.ui.platform.AndroidClipboard
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import com.mohamedrejeb.richeditor.model.RichTextState
@@ -29,7 +30,25 @@ internal actual fun createRichTextClipboardManager(
 internal class AndroidRichTextClipboardManager(
     private val richTextState: RichTextState,
     private val clipboard: Clipboard,
-) : RichTextClipboardManager, Clipboard by clipboard {
+) : RichTextClipboardManager, AndroidClipboard, Clipboard by clipboard {
+
+    // Foundation's paste-availability path (ClipboardUtils.hasText ->
+    // Clipboard.nativeClipboardManager) runs `require(this is AndroidClipboard)`,
+    // so this wrapper must BE an AndroidClipboard — delegating Clipboard alone
+    // crashes any long-press inside the editor on compose-ui 1.12+. The wrapped
+    // clipboard is the platform default (AndroidClipboardImpl), so the cast holds;
+    // going through the interface avoids the nativeClipboardManager extension,
+    // which the compile-time stub jar cannot expose (top-level declarations need
+    // the library's .kotlin_module).
+    override val clipboardManager: android.content.ClipboardManager
+        get() = (clipboard as AndroidClipboard).clipboardManager
+
+    @Deprecated(
+        message = "Use [nativeClipboardManager] extension instead",
+        replaceWith = ReplaceWith("nativeClipboardManager"),
+    )
+    override val nativeClipboard: android.content.ClipboardManager
+        get() = clipboardManager
 
     override suspend fun getClipEntry(): ClipEntry? {
         try {

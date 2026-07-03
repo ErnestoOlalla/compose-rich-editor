@@ -66,6 +66,16 @@ kotlin {
         implementation(libs.jetbrains.markdown)
     }
 
+    sourceSets.androidMain.dependencies {
+        // AndroidClipboard (the interface foundation's paste path type-checks at
+        // runtime) only exists in compose-ui 1.12+, which would force compileSdk 37
+        // + AGP 9.1 here. Instead we compile against the REAL AndroidClipboard(_androidKt)
+        // classes extracted verbatim from ui-android:1.12.0-beta01 into a local stub
+        // jar. compileOnly => never packaged; at runtime the app's compose-ui provides
+        // them. Android consumers must be on compose-ui 1.12+ to use the rich editor.
+        compileOnly(files("libs/compose-ui-1.12-clipboard-stub.jar"))
+    }
+
     sourceSets.commonTest.dependencies {
         implementation(kotlin("test"))
         implementation(libs.compose.ui.test)
